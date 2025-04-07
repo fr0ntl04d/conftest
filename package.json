@@ -1,0 +1,82 @@
+{
+  "name": "vscode-confluence-docker",
+  "displayName": "Confluence Docker",
+  "description": "Spin up a Confluence Docker container with PostgreSQL and sync code with Confluence",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:confluence-docker.startContainer",
+    "onCommand:confluence-docker.stopContainer",
+    "onCommand:confluence-docker.containerStatus",
+    "onCommand:confluence-docker.exportToConfluence",
+    "onCommand:confluence-docker.importFromConfluence"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "confluence-docker.startContainer",
+        "title": "Confluence Docker: Start Container"
+      },
+      {
+        "command": "confluence-docker.stopContainer",
+        "title": "Confluence Docker: Stop Container"
+      },
+      {
+        "command": "confluence-docker.containerStatus",
+        "title": "Confluence Docker: Check Container Status"
+      },
+      {
+        "command": "confluence-docker.exportToConfluence",
+        "title": "Confluence Docker: Export Code to Confluence"
+      },
+      {
+        "command": "confluence-docker.importFromConfluence",
+        "title": "Confluence Docker: Import Content from Confluence"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "confluence-docker.exportToConfluence",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "confluence-docker.exportToConfluence",
+          "when": "editorIsOpen"
+        },
+        {
+          "command": "confluence-docker.importFromConfluence"
+        },
+        {
+          "command": "confluence-docker.startContainer"
+        },
+        {
+          "command": "confluence-docker.stopContainer"
+        },
+        {
+          "command": "confluence-docker.containerStatus"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/glob": "^7.1.4",
+    "@types/node": "^16.11.7",
+    "eslint": "^8.9.0",
+    "glob": "^7.2.0"
+  }
+}
