@@ -1,65 +1,83 @@
-# conftest README
+# Confluence Docker for VS Code
 
-This is the README for your extension "conftest". After writing up a brief description, we recommend including the following sections.
+A VS Code extension that runs Confluence Server in Docker containers and lets you edit Confluence content directly in VS Code.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Run Confluence Server locally in Docker
+- Use PostgreSQL for database persistence
+- Import Confluence pages into VS Code
+- Edit content while preserving Confluence formatting
+- Export content back to Confluence
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Install from the VS Code Marketplace or download the VSIX file from the repository.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Docker installed and running
+- VS Code 1.60.0 or newer
+- Permission to run Docker commands
 
-## Extension Settings
+## How to use
+Suggested use: if there are customized macros you'd like to use, recommend creating the page in the confluence environment first and preconfiguring the macros there, then when you are ready to edit import that page in storage format. Make changes within the CDATA brackets to edit the contents of that macro.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+![CDATA Bracket where the Macro Contents are edited](image.png)
 
-For example:
+### Starting Confluence
 
-This extension contributes the following settings:
+1. Open Command Palette (Ctrl+Shift+P)
+2. Run `Confluence Docker: Start Container`
+3. Wait for both PostgreSQL and Confluence containers to initialize
+4. Complete the first-time Confluence setup in your browser when prompted
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Database setup (first run only)
 
-## Known Issues
+If Confluence asks for database details during setup:
+- Database Type: PostgreSQL
+- Hostname: vscode-confluence-postgres
+- Port: 5432
+- Database Name: confluence
+- Username: confluence
+- Password: confluence_password
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### Importing content
 
-## Release Notes
+1. Run `Confluence Docker: Import Content from Confluence`
+2. Enter your Confluence credentials
+3. Enter the page ID of the page you want to import
+4. The content will open in VS Code with formatting preserved
 
-Users appreciate release notes as you update your extension.
+### Editing and exporting
+This command will send whatever is in the current editor to the page.  
+1. Edit the imported content in VS Code
+2. Run `Confluence Docker: Export Code to Confluence`
+3. Choose to update the original page or create a new one
+4. View the updated page in your browser
 
-### 1.0.0
+### Stopping Confluence
 
-Initial release of ...
+Run `Confluence Docker: Stop Container` to stop both containers.
 
-### 1.0.1
+## Available commands
 
-Fixed issue #.
+- `Confluence Docker: Start Container` - Starts Confluence and PostgreSQL
+- `Confluence Docker: Stop Container` - Stops both containers
+- `Confluence Docker: Check Container Status` - Shows container status
+- `Confluence Docker: Import Content from Confluence` - Imports a page
+- `Confluence Docker: Export Code to Confluence` - Sends content to Confluence
 
-### 1.1.0
+## Finding page IDs
 
-Added features X, Y, and Z.
+The page ID can be found in the URL when viewing a page in Confluence:
 
----
+http://localhost:8090/pages/viewpage.action?pageId=12345
 
-## Working with Markdown
+In this example, the page ID is `12345`.
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+## Notes
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+- Content is stored in PostgreSQL for persistence
+- All Confluence macros and formatting are preserved during import/export
+- Default ports: Confluence (8090), PostgreSQL (5432)
