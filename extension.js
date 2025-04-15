@@ -29,7 +29,7 @@ let confluenceCredentials = {
 };
 
 function activate(context) {
-    console.log('Confluence Docker Extension is now active');
+    console.log('Confluence Test Suite Extension is now active');
     
     // Register the command to start Confluence container
     let startDisposable = vscode.commands.registerCommand('confluence-docker.startContainer', async () => {
@@ -282,9 +282,35 @@ async function importFromConfluence() {
             return;
         }
         
-        // For HTML content, we'll always import the exact storage format
-        // This preserves all Confluence macros and formatting
-        let contentToImport = pageContent.body.storage.value;
+        // Ask user which format they want to import
+        const formatOption = await vscode.window.showQuickPick(
+            [
+                { 
+                    label: 'Storage Format', 
+                    description: 'Raw Confluence storage format with macros (HTML + Confluence XML)', 
+                    format: 'storage' 
+                },
+                { 
+                    label: 'HTML Format', 
+                    description: 'Rendered HTML as displayed in browser', 
+                    format: 'html' 
+                }
+            ],
+            { placeHolder: 'Select import format' }
+        );
+        
+        if (!formatOption) {
+            return; // User canceled
+        }
+        
+        // Get content based on selected format
+        let contentToImport;
+        
+        if (formatOption.format === 'storage') {
+            contentToImport = pageContent.body.storage.value;
+        } else {
+            contentToImport = pageContent.body.view.value;
+        }
         
         // Create a new document with the content
         const document = await vscode.workspace.openTextDocument({
@@ -300,10 +326,11 @@ async function importFromConfluence() {
             title: pageContent.title,
             spaceKey: pageContent.space.key,
             version: pageContent.version.number,
+            format: formatOption.format,
             lastUpdated: new Date().toISOString()
         });
         
-        vscode.window.showInformationMessage(`Imported content from page "${pageContent.title}" (ID: ${pageId}). Edit and use "Export to Confluence" to update.`);
+        vscode.window.showInformationMessage(`Imported content from page "${pageContent.title}" (ID: ${pageId}) in ${formatOption.label}. Edit and use "Export to Confluence" to update.`);
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to import from Confluence: ${error.message}`);
     }
@@ -388,7 +415,7 @@ async function exportCodeToConfluence() {
         return; // User canceled
     }
     
-    let pageId, pageTitle, spaceKey, versionNumber;
+    let pageId, pageTitle, spaceKey, versionNumber, importFormat;
     
     if (option.action === 'update' && option.metadata) {
         // Use existing metadata
@@ -396,6 +423,7 @@ async function exportCodeToConfluence() {
         pageTitle = option.metadata.title;
         spaceKey = option.metadata.spaceKey;
         versionNumber = option.metadata.version;
+        importFormat = option.metadata.format || 'storage'; // Default to storage if not specified
         
         // Verify page still exists and get latest version
         try {
@@ -460,6 +488,13 @@ async function exportCodeToConfluence() {
                     return; // User canceled
                 }
             }
+            
+            // Ask for format when updating another page
+            importFormat = await promptForExportFormat();
+            if (!importFormat) {
+                return; // User canceled
+            }
+            
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to get page info: ${error.message}`);
             return;
@@ -484,13 +519,27 @@ async function exportCodeToConfluence() {
         if (!pageTitle) {
             return; // User canceled
         }
+        
+        // For new pages, ask for format
+        importFormat = await promptForExportFormat();
+        if (!importFormat) {
+            return; // User canceled
+        }
+    }
+    
+    // Process content based on format
+    let processedContent = documentText;
+    
+    if (importFormat === 'html') {
+        // Process HTML to make it compatible with Confluence
+        processedContent = `<p>${processedContent}</p>`;
     }
     
     // Determine if we're creating or updating
     if (option.action === 'create') {
         // Create new page
         try {
-            const result = await createConfluencePage(spaceKey, pageTitle, documentText);
+            const result = await createConfluencePage(spaceKey, pageTitle, processedContent);
             if (result.id) {
                 vscode.window.showInformationMessage(`Page created successfully with ID: ${result.id}`);
                 
@@ -499,7 +548,8 @@ async function exportCodeToConfluence() {
                     id: result.id,
                     title: pageTitle,
                     spaceKey: spaceKey,
-                    version: 1
+                    version: 1,
+                    format: importFormat
                 });
                 
                 // Open the page in browser
@@ -511,7 +561,7 @@ async function exportCodeToConfluence() {
     } else {
         // Update existing page
         try {
-            const result = await updateConfluencePage(pageId, pageTitle, spaceKey, documentText, versionNumber);
+            const result = await updateConfluencePage(pageId, pageTitle, spaceKey, processedContent, versionNumber);
             if (result) {
                 vscode.window.showInformationMessage(`Page updated successfully: ${pageTitle}`);
                 
@@ -520,7 +570,8 @@ async function exportCodeToConfluence() {
                     id: pageId,
                     title: pageTitle,
                     spaceKey: spaceKey,
-                    version: versionNumber + 1
+                    version: versionNumber + 1,
+                    format: importFormat
                 });
                 
                 // Open the page in browser
@@ -752,7 +803,7 @@ function openConfluenceInBrowser() {
 
 // This method is called when your extension is deactivated
 function deactivate() {
-    console.log('Confluence Docker Extension is now deactivated');
+    console.log('Confluence Test Suite extension is now deactivated');
 }
 
 module.exports = {
