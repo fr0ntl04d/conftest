@@ -1,6 +1,7 @@
 # Confluence Test Suite for VS Code
 
 A VS Code extension that runs Confluence Server in Docker containers and lets you edit Confluence content directly in VS Code.
+A VS Code extension that runs Confluence Server in Docker containers and lets you edit Confluence content directly in VS Code.
 
 ## Features
 
