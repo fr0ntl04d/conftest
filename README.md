@@ -64,7 +64,6 @@ In this example, the page ID is `1474561`.
 
 Suggested use: if there are customized macros you'd like to use, recommend creating the page in the confluence environment first and preconfiguring the macros there, then when you are ready to edit import that page in storage format. Make changes within the CDATA brackets to edit the contents of that macro.
 
-![CDATA Bracket where the Macro Contents are edited](image.png)
 
 ### Editing and exporting
 
@@ -73,6 +72,9 @@ This command will send whatever is in the current editor to the page.
 2. Run `Confluence Test Suite: Export Code to Confluence`
 3. Choose to update the original page or create a new one
 4. View the updated page in your browser
+
+
+![CDATA Bracket where the Macro Contents are edited](image.png)
 
 ### Stopping Confluence
 
