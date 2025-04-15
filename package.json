@@ -3,6 +3,17 @@
   "displayName": "Confluence Test Suite",
   "description": "Spin up a Confluence Test Suite container with PostgreSQL and sync code with Confluence",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fr0ntl0ad/conftest.git"
+  },
+  "publisher": "JordanMulhall",
+  "keywords": [
+    "confluence",
+    "docker",
+    "atlassian",
+    "postgresql"
+  ],
   "engines": {
     "vscode": "^1.60.0"
   },
