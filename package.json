@@ -1,5 +1,6 @@
 {
   "name": "vscode-confluence-test-suite",
+  "icon": "img/confDockerLogo.png",
   "displayName": "Confluence Test Suite",
   "description": "Spin up a Confluence Test Suite container with PostgreSQL and sync code with Confluence",
   "version": "1.0.0",
