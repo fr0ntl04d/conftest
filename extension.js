@@ -32,7 +32,7 @@ function activate(context) {
     console.log('Confluence Test Suite Extension is now active');
     
     // Register the command to start Confluence container
-    let startDisposable = vscode.commands.registerCommand('confluence-docker.startContainer', async () => {
+    let startDisposable = vscode.commands.registerCommand('confluence-test-suite.startContainer', async () => {
         try {
             await startConfluenceWithPostgres();
         } catch (error) {
@@ -41,7 +41,7 @@ function activate(context) {
     });
     
     // Register the command to stop Confluence container
-    let stopDisposable = vscode.commands.registerCommand('confluence-docker.stopContainer', async () => {
+    let stopDisposable = vscode.commands.registerCommand('confluence-test-suite.stopContainer', async () => {
         try {
             await stopConfluenceWithPostgres();
         } catch (error) {
@@ -50,7 +50,7 @@ function activate(context) {
     });
     
     // Register the command to check container status
-    let statusDisposable = vscode.commands.registerCommand('confluence-docker.containerStatus', async () => {
+    let statusDisposable = vscode.commands.registerCommand('confluence-test-suite.containerStatus', async () => {
         try {
             await checkContainersStatus();
         } catch (error) {
@@ -59,7 +59,7 @@ function activate(context) {
     });
 
     // Register the command to export code to Confluence
-    let exportDisposable = vscode.commands.registerCommand('confluence-docker.exportToConfluence', async () => {
+    let exportDisposable = vscode.commands.registerCommand('confluence-test-suite.exportToConfluence', async () => {
         try {
             await exportCodeToConfluence();
         } catch (error) {
@@ -68,7 +68,7 @@ function activate(context) {
     });
 
     // Register the command to import content from Confluence
-    let importDisposable = vscode.commands.registerCommand('confluence-docker.importFromConfluence', async () => {
+    let importDisposable = vscode.commands.registerCommand('confluence-test-suite.importFromConfluence', async () => {
         try {
             await importFromConfluence();
         } catch (error) {
