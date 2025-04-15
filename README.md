@@ -40,8 +40,21 @@ If Confluence asks for database details during setup:
 - Username: confluence
 - Password: confluence_password
 
-### Importing content
+## Finding page IDs
 
+The page ID can be found when clicking the 3 dots in the top right of a page and hovering over one of the dropdown options. Click on one of the options or look at the URL preview in the bottom left corner of your browser window.
+
+
+![Page options menu with item selected](image-1.png)
+
+
+![Screenshot showing where the page ID is when hovering over a menu item](image-2.png)
+
+http://localhost:8090/pages/viewinfo.action?pageId=1474561
+
+In this example, the page ID is `1474561`.
+
+### Importing content
 
 1. Run `Confluence Test Suite: Import Content from Confluence`
 2. Enter your Confluence credentials
@@ -72,19 +85,6 @@ Run `Confluence Test Suite: Stop Container` to stop both containers.
 - `Confluence Test Suite: Check Container Status` - Shows container status
 - `Confluence Test Suite: Import Content from Confluence` - Imports a page
 - `Confluence Test Suite: Export Code to Confluence` - Sends content to Confluence
-
-## Finding page IDs
-
-The page ID can be found when clicking the 3 dots in the top right of a page and hovering over one of the dropdown options. Click on one of the options or look at the URL preview in the bottom left corner of your browser window.
-
-
-![Page options menu with item selected](image-1.png)
-
-http://localhost:8090/pages/viewinfo.action?pageId=1474561
-
-![Screenshot showing where the page ID is when hovering over a menu item](image-2.png)
-
-In this example, the page ID is `1474561`.
 
 ## Notes
 
