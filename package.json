@@ -2,7 +2,7 @@
   "name": "vscode-confluence-test-suite",
   "displayName": "Confluence Test Suite",
   "description": "Spin up a Confluence Test Suite container with PostgreSQL and sync code with Confluence",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/fr0ntl0ad/conftest.git"
