@@ -3,7 +3,7 @@
   "icon": "img/confDockerLogo.png",
   "displayName": "Confluence Test Suite",
   "description": "Spin up a Confluence Test Suite container with PostgreSQL and sync code with Confluence",
-  "version": "1.0.11",
+  "version": "1.0.13",
   "repository": {
     "type": "git",
     "url": "https://github.com/fr0ntl04d/conftest.git"
