@@ -489,11 +489,6 @@ async function exportCodeToConfluence() {
                 }
             }
             
-            // Ask for format when updating another page
-            importFormat = await promptForExportFormat();
-            if (!importFormat) {
-                return; // User canceled
-            }
             
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to get page info: ${error.message}`);
@@ -520,11 +515,6 @@ async function exportCodeToConfluence() {
             return; // User canceled
         }
         
-        // For new pages, ask for format
-        importFormat = await promptForExportFormat();
-        if (!importFormat) {
-            return; // User canceled
-        }
     }
     
     // Process content based on format
