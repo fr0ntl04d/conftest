@@ -1,9 +1,13 @@
 # Change Log
 
-All notable changes to the "conftest" extension will be documented in this file.
+v1.0.1 - Initial release
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+v1.0.2 -> v1.0.14 Troubleshooting broken images in the marketplace readme.
 
-## [Unreleased]
+v1.0.16 - Export code command prepopulates the last page ID that was imported. 
 
-- Initial release
+## Fixes
+
+v1.0.15 - Fixed marketplace readme broken image errors
+
+v1.0.16 - Fixed false negative import error.

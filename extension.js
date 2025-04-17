@@ -28,6 +28,8 @@ let confluenceCredentials = {
     baseUrl: `http://localhost:${HOST_PORT}`
 };
 
+
+
 function activate(context) {
     console.log('Confluence Test Suite Extension is now active');
     
@@ -272,85 +274,100 @@ async function importFromConfluence() {
     if (!pageId) {
         return; // User canceled
     }
+
+    
     
     try {
         // Get page content with both storage and view formats
         const pageContent = await getConfluencePage(pageId, true);
         
+        const space = pageContent._expandable.space.split("/");
+        const spaceKey = space[space.length - 1];
+
         if (!pageContent) {
             vscode.window.showErrorMessage(`Could not retrieve page with ID: ${pageId}`);
             return;
         }
         
-        // Ask user which format they want to import
-        const formatOption = await vscode.window.showQuickPick(
-            [
-                { 
-                    label: 'Storage Format', 
-                    description: 'Raw Confluence storage format with macros (HTML + Confluence XML)', 
-                    format: 'storage' 
-                },
-                { 
-                    label: 'HTML Format', 
-                    description: 'Rendered HTML as displayed in browser', 
-                    format: 'html' 
-                }
-            ],
-            { placeHolder: 'Select import format' }
-        );
-        
-        if (!formatOption) {
-            return; // User canceled
-        }
-        
-        // Get content based on selected format
-        let contentToImport;
-        
-        if (formatOption.format === 'storage') {
-            contentToImport = pageContent.body.storage.value;
-        } else {
-            contentToImport = pageContent.body.view.value;
-        }
+        // Always use storage format
+        let contentToImport = pageContent.body.storage.value;
         
         // Create a new document with the content
         const document = await vscode.workspace.openTextDocument({
             content: contentToImport,
             language: 'html'  // Always treat as HTML for syntax highlighting
+
         });
         
         await vscode.window.showTextDocument(document);
         
         // Store page metadata in document state for easier re-upload
-        await createMetadataFile({
-            id: pageContent.id,
-            title: pageContent.title,
-            spaceKey: pageContent.space.key,
-            version: pageContent.version.number,
-            format: formatOption.format,
-            lastUpdated: new Date().toISOString()
-        });
-        
-        vscode.window.showInformationMessage(`Imported content from page "${pageContent.title}" (ID: ${pageId}) in ${formatOption.label}. Edit and use "Export to Confluence" to update.`);
+        try {
+            // Create temporary directory if it doesn't exist
+            const tempDir = path.join(vscode.workspace.rootPath || os.tmpdir(), '.confluence');
+            if (!fs.existsSync(tempDir)) {
+                fs.mkdirSync(tempDir, { recursive: true });
+            }
+
+            // Save metadata for easier re-upload
+            const metadata = {
+                id: pageContent.id,
+                title: pageContent.title,
+                spaceKey: spaceKey,
+                version: pageContent.version.number,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            fs.writeFileSync(
+                path.join(tempDir, `page_${pageContent.id}.json`),
+                JSON.stringify(metadata, null, 2)
+            );
+            
+            vscode.window.showInformationMessage(`Imported content from page "${pageContent.title}" (ID: ${pageId}). Edit and use "Export to Confluence" to update.`);
+        } catch (error) {
+            console.error('Failed to save metadata:', error);
+            // Still show success message even if metadata saving failed
+            vscode.window.showInformationMessage(`Imported content from page "${pageContent.title}" (ID: ${pageId}). Edit and use "Export to Confluence" to update.`);
+        }
     } catch (error) {
         vscode.window.showErrorMessage(`Failed to import from Confluence: ${error.message}`);
     }
 }
 
+
+
 // Function to create metadata file for the imported content
 async function createMetadataFile(pageContent) {
     try {
         // Create temporary directory if it doesn't exist
-        const tempDir = path.join(vscode.workspace.rootPath || os.tmpdir(), '.confluence');
+        let tempDir;
+        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+            // Use the first workspace folder
+            tempDir = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, '.confluence');
+        } else {
+            // Fallback to temp directory if no workspace is open
+            tempDir = path.join(os.tmpdir(), '.confluence');
+        }
+
         if (!fs.existsSync(tempDir)) {
             fs.mkdirSync(tempDir, { recursive: true });
+        }
+        
+        // Check for space key and handle if it's missing
+        let spaceKey = null;
+        if (pageContent.space && pageContent.space.key) {
+            spaceKey = pageContent.space.key;
+        } else if (pageContent.spaceKey) {
+            spaceKey = pageContent.spaceKey;
         }
         
         // Save metadata for easier re-upload
         const metadata = {
             id: pageContent.id,
             title: pageContent.title,
-            spaceKey: pageContent.spaceKey,
-            version: pageContent.version,
+            spaceKey: spaceKey,
+            version: typeof pageContent.version === 'number' ? pageContent.version : 
+                    (pageContent.version && pageContent.version.number ? pageContent.version.number : 1),
             lastUpdated: new Date().toISOString()
         };
         
@@ -415,7 +432,7 @@ async function exportCodeToConfluence() {
         return; // User canceled
     }
     
-    let pageId, pageTitle, spaceKey, versionNumber, importFormat;
+    let pageId, pageTitle, spaceKey, versionNumber;
     
     if (option.action === 'update' && option.metadata) {
         // Use existing metadata
@@ -423,7 +440,6 @@ async function exportCodeToConfluence() {
         pageTitle = option.metadata.title;
         spaceKey = option.metadata.spaceKey;
         versionNumber = option.metadata.version;
-        importFormat = option.metadata.format || 'storage'; // Default to storage if not specified
         
         // Verify page still exists and get latest version
         try {
@@ -453,7 +469,7 @@ async function exportCodeToConfluence() {
             return;
         }
     } else if (option.action === 'update-other') {
-        // Get page ID
+        
         pageId = await vscode.window.showInputBox({
             prompt: 'Enter the Confluence page ID to update',
             placeHolder: 'e.g., 123456'
@@ -488,8 +504,6 @@ async function exportCodeToConfluence() {
                     return; // User canceled
                 }
             }
-            
-            
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to get page info: ${error.message}`);
             return;
@@ -514,16 +528,10 @@ async function exportCodeToConfluence() {
         if (!pageTitle) {
             return; // User canceled
         }
-        
     }
     
-    // Process content based on format
+    // Process content - we assume it's already in the correct format
     let processedContent = documentText;
-    
-    if (importFormat === 'html') {
-        // Process HTML to make it compatible with Confluence
-        processedContent = `<p>${processedContent}</p>`;
-    }
     
     // Determine if we're creating or updating
     if (option.action === 'create') {
@@ -537,9 +545,8 @@ async function exportCodeToConfluence() {
                 await createMetadataFile({
                     id: result.id,
                     title: pageTitle,
-                    spaceKey: spaceKey,
-                    version: 1,
-                    format: importFormat
+                    space: { key: spaceKey },
+                    version: 1
                 });
                 
                 // Open the page in browser
@@ -559,9 +566,8 @@ async function exportCodeToConfluence() {
                 await createMetadataFile({
                     id: pageId,
                     title: pageTitle,
-                    spaceKey: spaceKey,
-                    version: versionNumber + 1,
-                    format: importFormat
+                    space: { key: spaceKey },
+                    version: versionNumber + 1
                 });
                 
                 // Open the page in browser
@@ -588,16 +594,32 @@ async function checkForPageMetadata() {
             return null;
         }
         
-        // Read all metadata files
+        // Read all metadata files and find the most recent one
         const files = fs.readdirSync(tempDir);
+        let newestFile = null;
+        let newestTime = 0;
+
+        // Find the most recent metadata file
         for (const file of files) {
             if (file.startsWith('page_') && file.endsWith('.json')) {
-                const metadata = JSON.parse(fs.readFileSync(path.join(tempDir, file), 'utf8'));
-                return metadata;
+                const filePath = path.join(tempDir, file);
+                const stats = fs.statSync(filePath);
+                const modifiedTime = stats.mtimeMs; // Modification time in milliseconds
+                
+                if (modifiedTime > newestTime) {
+                    newestTime = modifiedTime;
+                    newestFile = filePath;
+                }
             }
-        }
-        
-        return null;
+}
+
+// If we found a file, read its metadata
+if (newestFile) {
+    const metadata = JSON.parse(fs.readFileSync(newestFile, 'utf8'));
+    return metadata;
+}
+
+return null;
     } catch (error) {
         console.error('Failed to read metadata:', error);
         return null;
