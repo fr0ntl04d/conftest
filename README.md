@@ -55,10 +55,11 @@ In this example, the page ID is `1474561`.
 
 ### Importing content
 
-1. Run `Confluence Test Suite: Import Content from Confluence`
-2. Enter your Confluence credentials
-3. Enter the page ID of the page you want to import
-4. The content will open in VS Code with formatting preserved
+1. Open a working directory (can be empty) the extension will create a temporary `/.confluence` directory for page metadata information.
+2. Run `Confluence Test Suite: Import Content from Confluence`
+3. Enter your Confluence credentials
+4. Enter the page ID of the page you want to import
+5. The content will open in VS Code with formatting preserved
 
 
 Suggested use: if there are customized macros you'd like to use, recommend creating the page in the confluence environment first and preconfiguring the macros there, then when you are ready to edit import that page in storage format. Make changes within the CDATA brackets to edit the contents of that macro.
@@ -69,8 +70,8 @@ Suggested use: if there are customized macros you'd like to use, recommend creat
 This command will send whatever is in the current editor to the page.  
 1. Edit the imported content in VS Code
 2. Run `Confluence Test Suite: Export Code to Confluence`
-3. Choose to update the original page or create a new one
-4. View the updated page in your browser
+3. Choose to update the last imported page, create a new one, or update a different page.
+4. The updated page should open in a new browser tab.
 
 
 ![CDATA Bracket where the Macro Contents are edited](image.png)
