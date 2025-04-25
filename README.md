@@ -44,10 +44,10 @@ If Confluence asks for database details during setup:
 
 The page ID can be found when clicking the 3 dots in the top right of a page and hovering over one of the dropdown options. Click on one of the options or look at the URL preview in the bottom left corner of your browser window.
 
-![Page options menu with item selected](image-1.png)
+![Page options menu with item selected](img/image-1.png)
 
 
-![Screenshot showing where the page ID is when hovering over a menu item](image-2.png)
+![Screenshot showing where the page ID is when hovering over a menu item](img/image-2.png)
 
 http://localhost:8090/pages/viewinfo.action?pageId=1474561
 
@@ -74,7 +74,7 @@ This command will send whatever is in the current editor to the page.
 4. The updated page should open in a new browser tab.
 
 
-![CDATA Bracket where the Macro Contents are edited](image.png)
+![CDATA Bracket where the Macro Contents are edited](img/image.png)
 
 ### Stopping Confluence
 
